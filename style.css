@@ -15,19 +15,33 @@ body{
     flex-direction: column;
     min-height: 100vh;
     color: #eee;
-    background: #333;
+    background: #222;
 }
 header{
     position: relative;
     padding: 0.5em 0;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    border-bottom: #050 dotted 5px;
 }
 main{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+article{
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     border-radius: 1.25rem;
+    text-align: center;
+    background: #333;
+    height: 460px;
+    width: 300px;
+    margin: 2rem;
+    filter: drop-shadow(0 0 20px #595959);
 }
 .items{
     position: relative;
@@ -60,7 +74,7 @@ button:hover{
     background: #090;
     filter: drop-shadow(5px 5px 15px #050);
     transition: 0.5s;
-}
+}/*
 footer{
     position: fixed;
     width: 100%;
@@ -68,6 +82,6 @@ footer{
     justify-content: center;
     align-items: center;
 
-    padding: 2rem 0;
+    padding: 1rem 0;
     bottom: 0;
 }
