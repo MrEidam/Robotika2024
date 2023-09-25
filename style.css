@@ -23,13 +23,51 @@ header{
 }
 main{
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 1.25rem;
 }
 .items{
     position: relative;
-    
+    margin: 1rem 0;
+}
+a{
+    text-decoration: none;
+    color: #fff;
+}
+img{
+    width: 250px;
+    height: 250px;
+}
+button{
+    border: none;
+    width: 100px;
+    height: 40px;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-weight: 600;
+    background: #555;
+    filter: drop-shadow(5px 5px 15px #666);
+    transition: 0.5s;
+}
+button:hover{
+    width: 150px;
+    height:  50px;
+    font-weight: 800;
+    letter-spacing: 0.25rem;
+    background: #090;
+    filter: drop-shadow(5px 5px 15px #050);
+    transition: 0.5s;
 }
 footer{
     position: fixed;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     padding: 2rem 0;
     bottom: 0;
 }
