@@ -8,17 +8,20 @@
 
 int limitSpeed = 20;
 int maxRotate = 90;
+int paws = false; // true = open | false = close
 
 void popen(){
+	paws = true;
 	moveMotorTarget(motorPR, maxRotate, 100);
-	delay(500);
+	delay(250);
 	moveMotorTarget(motorPL, maxRotate, 100);
 	delay(100);
 }
- 
+
 void pclose(){
+	paws = false;
 	moveMotorTarget(motorPL, -maxRotate, -100);
-	delay(500);
+	delay(250);
 	moveMotorTarget(motorPR, -maxRotate, -100);
 	delay(100);
 }
@@ -48,8 +51,8 @@ task main(){
 		displayBigTextLine			(12, " And I'm David");
 
 		if(joy1Btn(5)||joy1Btn(6)||joy1Btn(7)||joy1Btn(8)){
-			if(joy1Btn(5)||joy1Btn(7))popen();
-			if(joy1Btn(6)||joy1Btn(8))pclose();
+			if((joy1Btn(5)||joy1Btn(7)) && (paws == false))popen();
+			if((joy1Btn(6)||joy1Btn(8)) && (paws == true))pclose();
 		}else{
 			setMotorSpeed(motorPR, 0);
 			setMotorSpeed(motorPL, 0);
@@ -64,4 +67,3 @@ task main(){
 		if(joy1Btn(11) == 1)playTone(210, 8);
 	}
 }
-
