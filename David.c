@@ -6,9 +6,6 @@
 
 //	F5 -> Start -> Robot -> Lego Brick -> Joystick control BASIC
 int limitSpeed = 50;
-// int maxRotate = 90;
-// int pawStatus = 0;
-// int pstop = 0;
 
 void encspeedR(int rot, int tolerance){
     int encoder = getMotorEncoder(motorPR);
@@ -54,12 +51,26 @@ void pclose(){
 	delay(50);
 }
 
+task paws(){
+	while(true){
+		if(joy1Btn(4)||joy1Btn(5)||joy1Btn(6)||joy1Btn(7)||joy1Btn(8)){
+			if(joy1Btn(5)||joy1Btn(7))popen();
+			if(joy1Btn(4))p45();
+			if(joy1Btn(6)||joy1Btn(8))pclose();
+		}else{
+			setMotorSpeed(motorPR, 0);
+			setMotorSpeed(motorPL, 0);
+		}
+		delay(50);
+	}
+}
+
 task main(){
+	startTask(paws);
 	resetMotorEncoder(motorPR);
 	resetMotorEncoder(motorPL);
 	while(true){
 		getJoystickSettings(joystick);
-
 
 		if(joystick.joy1_y1>limitSpeed || joystick.joy1_y1<-limitSpeed || joystick.joy1_x2>limitSpeed || joystick.joy1_x2<-limitSpeed){
 			setMotorSpeed(motorR, -(joystick.joy1_y1/2)+(joystick.joy1_x2/2));
@@ -78,17 +89,7 @@ task main(){
 		displayTextLine       (7, "Battery: %i", nAvgBatteryLevel);
 		displayBigTextLine			(12, " And I'm David");
 
-		if(joy1Btn(4)||joy1Btn(5)||joy1Btn(6)||joy1Btn(7)||joy1Btn(8)){
-			if(joy1Btn(5)||joy1Btn(7))popen();
-			if(joy1Btn(4))p45();
-			if(joy1Btn(6)||joy1Btn(8))pclose();
-		}else{
-			setMotorSpeed(motorPR, 0);
-			setMotorSpeed(motorPL, 0);
-		}
-
-		
-		delay(100);
+		delay(50);
 
 //	Honk
 		if(joy1Btn(11) == 1)playTone(210, 8);
