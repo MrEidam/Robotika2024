@@ -77,21 +77,21 @@ void rDrive(float dis, float mspeed){
     drive(dis/3, mspeed/2+mspeed/4);
     drive(dis-(dis/4+dis/3), mspeed);*/
     //? 10 => 55 20 => 210 15 => 120
-    drive(1*dis/120, mspeed*3/15);
-    drive(2*dis/120, mspeed*3/15);
-    drive(3*dis/120, mspeed*3/15);
-    drive(4*dis/120, mspeed*6/15);
-    drive(5*dis/120, mspeed*6/15);
-    drive(6*dis/120, mspeed*6/15);
-    drive(7*dis/120, mspeed*9/15);
-    drive(8*dis/120, mspeed*9/15);
-    drive(9*dis/120, mspeed*9/15);
-    drive(10*dis/120, mspeed*12/15);
-    drive(11*dis/120, mspeed*12/15);
-    drive(12*dis/120, mspeed*12/15);
-    drive(13*dis/120, mspeed*15/15);
-    drive(15*dis/120, mspeed*14/15);
-    drive(14*dis/120, mspeed*13/15);
+    drive(1*dis/64, mspeed*1/8);
+    drive(2*dis/64, mspeed*2/8);
+    drive(3*dis/64, mspeed*3/8);
+    drive(4*dis/64, mspeed*4/8);
+    drive(5*dis/64, mspeed*5/8);
+    drive(6*dis/64, mspeed*6/8);
+    drive(7*dis/64, mspeed*7/8);
+    drive(8*dis/64, mspeed*8/8);
+    drive(7*dis/64, mspeed*7/8);
+    drive(6*dis/64, mspeed*6/8);
+    drive(5*dis/64, mspeed*5/8);
+    drive(4*dis/64, mspeed*4/8);
+    drive(3*dis/64, mspeed*3/8);
+    drive(2*dis/64, mspeed*2/8);
+    drive(1*dis/64, mspeed*1/8);
     stopMotor();
 }
 
