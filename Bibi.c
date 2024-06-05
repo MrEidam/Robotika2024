@@ -13,9 +13,8 @@ const float wheelDiameter = 68.8;
 int red, green, blue; //- RGB
 bool sniffing = false;
 int currentBone;
-int attempt = 3;
+int attempt = 10;
 int sack[] = {0,0,0}; //^ R G B
-////float actualL, actualR, ddiff, aangle;
 
 void resetEn(){
     resetMotorEncoder(motorRight);
@@ -26,43 +25,91 @@ void resetEn(){
 void waitMotor(){
     waitUntilMotorStop(motorRight);
     waitUntilMotorStop(motorLeft);
+    waitUntilMotorStop(motorPaws);
 }
 
 //# Halt
 void stopMotor(){
     setMotorSpeed(motorRight, 0);
     setMotorSpeed(motorLeft, 0);
-    waitMotor();
 }
 
 //# Moving
-
-void moveMotors(float dis){
+void drive(float dis, int mspeed){
     resetEn();
-    float range = dis * convMM;
-    moveMotorTarget(motorRight, range, speed);
-    moveMotorTarget(motorLeft, range, speed);
-    waitMotor();
-}
+    float angledis = fabs(dis) * convMM;
 
-void moveMotorsBack(float dis){
-    resetEn();
-    float range = dis * convMM;
-    moveMotorTarget(motorRight, range, -speed);
-    moveMotorTarget(motorLeft, range, -speed);
-}
-
-void rotateMotors(float deg, float left){
-    resetEn();
-    float range = (deg*wheelWidth)/34.4;
-    ////displayTextLine(1, "range: %f", range);
-    if(left){
-        moveMotorTarget(motorRight, range, speed);
-        moveMotorTarget(motorLeft, range, -speed);
-    }else{
-        moveMotorTarget(motorRight, range, -speed);
-        moveMotorTarget(motorLeft, range,   speed);
+    while((angledis > getMotorEncoder(motorLeft)) && (dis >= 0)){
+        int diff = getMotorEncoder(motorLeft) - getMotorEncoder(motorRight);
+        setMotorSpeed(motorRight, mspeed + diff/2);
+        setMotorSpeed(motorLeft, mspeed - diff/2);
+        delay(20);
     }
+
+    while((-angledis < getMotorEncoder(motorLeft)) && (dis <=0)){
+        int diff = abs(getMotorEncoder(motorLeft)) - abs(getMotorEncoder(motorRight));
+        setMotorSpeed(motorRight, -fabs(mspeed + diff/2));
+        setMotorSpeed(motorLeft, -fabs(mspeed - diff/2));
+        delay(20);
+    }
+}
+
+void jDrive(int mspeed){
+    resetEn();
+    float angledis = 1000 * convMM;
+
+    while(angledis > getMotorEncoder(motorLeft)){
+        int diff = getMotorEncoder(motorLeft) - getMotorEncoder(motorRight);
+        setMotorSpeed(motorRight, mspeed + diff/2);
+        setMotorSpeed(motorLeft, mspeed - diff/2);
+        if(currentBone != -1){
+            delay(250);
+            break;
+        }
+        delay(20);
+    }
+}
+
+//# Schod* DRIVE
+void rDrive(float dis, float mspeed){
+    waitMotor();/*
+    drive(dis/4, mspeed/2);
+    drive(dis/3, mspeed/2+mspeed/4);
+    drive(dis-(dis/4+dis/3), mspeed);*/
+    //? 10 => 55 20 => 210 15 => 120
+    drive(1*dis/120, mspeed*3/15);
+    drive(2*dis/120, mspeed*3/15);
+    drive(3*dis/120, mspeed*3/15);
+    drive(4*dis/120, mspeed*6/15);
+    drive(5*dis/120, mspeed*6/15);
+    drive(6*dis/120, mspeed*6/15);
+    drive(7*dis/120, mspeed*9/15);
+    drive(8*dis/120, mspeed*9/15);
+    drive(9*dis/120, mspeed*9/15);
+    drive(10*dis/120, mspeed*12/15);
+    drive(11*dis/120, mspeed*12/15);
+    drive(12*dis/120, mspeed*12/15);
+    drive(13*dis/120, mspeed*15/15);
+    drive(15*dis/120, mspeed*14/15);
+    drive(14*dis/120, mspeed*13/15);
+    stopMotor();
+}
+
+void rotate(float deg, int mspeed){
+    resetEn();
+    float dis = fabs(deg) * wheelWidth / wheelDiameter;
+
+    while((dis > getMotorEncoder(motorLeft))&&(deg>=0)){
+        setMotorSpeed(motorRight, -mspeed/2);
+        setMotorSpeed(motorLeft, mspeed/2);
+        delay(20);
+    }
+    while((dis > getMotorEncoder(motorRight))&&(deg<=0)){
+        setMotorSpeed(motorRight, mspeed/2);
+        setMotorSpeed(motorLeft, -mspeed/2);
+        delay(20);
+    }
+    stopMotor();
 }
 
 void forceBackMove(){
@@ -74,133 +121,20 @@ void forceBackMove(){
     stopMotor();
 }
 
-//# Moving but not weird
+//# Moving but with eyes
 
-void drive(float dis, int speed){
-    resetEn();
-    float angledis = dis * convMM;
-
-    while((angledis > getMotorEncoder(motorLeft)) && (dis >= 0)){
-        int diff = getMotorEncoder(motorLeft) - getMotorEncoder(motorRight);
-        setMotorSpeed(motorRight, speed + diff/2);
-        setMotorSpeed(motorLeft, speed - diff/2);
-        delay(20);
-    }
-    while((-angledis < getMotorEncoder(motorLeft)) && (dis <=0)){
-        int diff = abs(getMotorEncoder(motorLeft)) - abs(getMotorEncoder(motorRight));
-        setMotorSpeed(motorRight, -abs(mspeed + diff/2));
-        setMotorSpeed(motorLeft, -abs(mspeed - diff/2));
-        delay(20);
-    }
-
-    stopMotor();
-}
-
-/*
-//void driveBack(float dis, int mspeed){  //todo TEST
-//    resetEn();                          //- Failed
-//    float angledis = dis * convMM;      //! Womp Womp
-//
-//    while(-angledis < getMotorEncoder(motorLeft)){
-//        int diff = abs(getMotorEncoder(motorLeft)) - abs(getMotorEncoder(motorRight));
-//        setMotorSpeed(motorRight, -abs(mspeed + diff/2));
-//        setMotorSpeed(motorLeft, -abs(mspeed - diff/2));
-//        delay(20);
-//
-//        ////writeDebugStreamLine("dis %f, speed %i, angledis %f, encL %i, encR %i, diff %i", dis, mspeed, angledis, getMotorEncoder(motorLeft), getMotorEncoder(motorRight), diff);
-//        ////writeDebugStreamLine("Motor speedR: %f, Motor speedL: %f", -(mspeed - diff/2), -(mspeed + diff/2));
-//
-//        writeDebugStreamLine("encL: %f encR: %f diffrend: %f angle: %f", actualL, actualR, ddiff, aangle);
-//        
-//        // kde najdu výsledek: Menu > Robot > Debugger Windows > Debug Stream > v nìm Ctrl+A nebo oznaèit oblast zájmu, Ctrl+C, novy soubor > Ctrl+V
-//        datalogDataGroupStart();
-//        actualL = getMotorEncoder(motorLeft);
-//        actualR = getMotorEncoder(motorRight);
-//        ddiff = actualL * 0.99013;
-//        datalogAddValue( 0, actualL );
-//        datalogAddValue( 1, actualR );
-//        datalogAddValue( 2, ddiff );
-//        aangle = angledis;
-//        datalogAddValue( 3, aangle);
-//        datalogDataGroupEnd();
-//
-//    }
-//    stopMotor();
-//    ////setMotorSpeed(motorRight, 0);
-//    ////setMotorSpeed(motorLeft, 0);
-//}
-*/
-
-void rotate(float deg, int speed){
-    resetEn();
-    float dis = fabs(deg) * wheelWidth / wheelDiameter;
-
-    while((dis > getMotorEncoder(motorLeft))&&(deg>=0)){
-        setMotorSpeed(motorRight, -speed);
-        setMotorSpeed(motorLeft, speed);
-        delay(20);
-    }
-    while((dis > getMotorEncoder(motorRight))&&(deg<=0)){
-        setMotorSpeed(motorRight, speed);
-        setMotorSpeed(motorLeft, -speed);
-        delay(20);
-    }
-    stopMotor();
-}
-
-//# Moving but cool
-
-void moveUntil(float wee, int speed){
+void moveUntil(float wee, int mspeed){
     while(getUSDistance(sanic) >= wee/10){
-        setMotorSpeed(motorRight, speed);
-        setMotorSpeed(motorLeft, speed);
+        setMotorSpeed(motorRight, mspeed);
+        setMotorSpeed(motorLeft, mspeed);
     }
     stopMotor();
 }
-void moveBack(float wee){
-    while(getUSDistance(sanic) <= wee){
-        setMotorSpeed(motorRight, -speed);
-        setMotorSpeed(motorLeft, -speed);
+void moveBack(float wee, int mspeed){
+    while(getUSDistance(sanic) <= wee/10){
+        setMotorSpeed(motorRight, -mspeed);
+        setMotorSpeed(motorLeft, -mspeed);
     }
-    stopMotor();
-}
-
-//# The First steps
-void mainSS(int speedM){
-    drive(850,speedM);
-    rotate(90,speedM);
-    waitMotor();
-    forceBackMove();
-    drive(600,speedM);
-    rotate(90,speedM);
-    waitMotor();
-    forceBackMove();
-    drive(1000,speedM);
-    rotate(-90,speedM);
-    waitMotor();
-    forceBackMove();
-    moveUntil(200,speedM);
-    rotate(-90,speedM);
-    waitMotor();
-    /*moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 0);
-    waitMotor();
-    moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 0);
-    waitMotor();
-    forceBackMove();
-    moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 1);
-    waitMotor();
-    forceBackMove();
-    moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 1);
-    waitMotor();*/
-    forceBackMove();
     stopMotor();
 }
 
@@ -208,14 +142,38 @@ void mainSS(int speedM){
 
 void paws(bool open){
     if(open){
-        setMotorSpeed(motorPaws, -100);
-        delay(500);
+        setMotorSpeed(motorPaws, -60);
+        delay(250);
         setMotorSpeed(motorPaws, 0);
     }else{
-        setMotorSpeed(motorPaws, 100);
-        delay(500);
+        setMotorSpeed(motorPaws, 60);
+        delay(250);
         setMotorSpeed(motorPaws, 0);
     }
+}
+
+//# The First steps
+void mainSS(int speedM){
+    rDrive(720,speedM);
+    waitMotor();
+    rotate(90,speedM);
+    ////waitMotor();
+    ////forceBackMove();
+    rDrive(450,speedM);////600
+    waitMotor();
+    rotate(90,speedM);
+    ////waitMotor();
+    ////forceBackMove();
+    rDrive(600,speedM);////1000
+    waitMotor();
+    rotate(-90,speedM);
+    waitMotor();
+    forceBackMove();
+    moveUntil(200,speedM);
+    rotate(-90,speedM);
+    waitMotor();
+    forceBackMove();
+    stopMotor();
 }
 
 //# Colors
@@ -231,7 +189,7 @@ int max(int a, int b, int c){       // vybere nejvyssi hodnotu
 }
 
 int getColor(int r, int g, int b){  //? returnuje barvu kostky
-	if(r>30||g>25||b>30){           //* zahájení američana.c
+	if(r>50||g>50||b>50){           //* zahájení američana.c
 		if(max(r,g,b)==r){          //! communist
 			return 0;
 		}else if(max(r,g,b)==g){    //^ detekce zelených zmrdů
@@ -239,7 +197,7 @@ int getColor(int r, int g, int b){  //? returnuje barvu kostky
 		}else{                      //? capitalistické svin�?
 			return 2;
 		}
-	}else{
+	}else{                          //- Error
 		return -1;
 	}
 }
@@ -247,149 +205,242 @@ int getColor(int r, int g, int b){  //? returnuje barvu kostky
 task gimmeColor(){
     while(sniffing){
         getColorRawRGB(color, red, green, blue);
-        ////displayBigTextLine(10, "Hex: %i %i %i", red, green, blue);
+        ////displayBigTextLine(10, "RGB: %i %i %i", red, green, blue);
 		currentBone = getColor(red, green, blue);
 		delay(50);
     }
 }
 
 void goingToBones(){
-    drive(2000,40);
-    rotate(90,69);
+    rDrive(1400,45);
     waitMotor();
-    rotate(-180,69);
+    rotate(-90, 50);
+    forceBackMove();
+    rDrive(150,40);
+    waitMotor();
+    rotate(90, 50);
+    rDrive(600,45);
+    waitMotor();
+    rotate(90,60);
+    waitMotor();
+    rotate(-180,60);
     waitMotor();
     forceBackMove();
     sniffing = true;
     startTask(gimmeColor);
 }
 
-void sortBones(int mspeed){
-    drive(100,mspeed);
+void sortBones(int mspeed, int i);
+
+void collectBonesFailed(int mspeed, int i){
+    rDrive(150, mspeed);
+    waitMotor();
+    rotate(-90, mspeed);
+    waitMotor();
+    rDrive(500-(500*i)/attempt, mspeed);
+    waitMotor();
+    rotate(90, mspeed);
+    waitMotor();
+    forceBackMove();
+    paws(true);
+    waitMotor();
+
+    jDrive(mspeed);
+    paws(false);
+
+    stopMotor();
+    waitMotor();
+    forceBackMove();
+    rDrive(175, mspeed);
+    waitMotor();
+    rotate(90, mspeed);
+    waitMotor();
+    rDrive(500-(500*i)/attempt, mspeed);
+    waitMotor();
+    rotate(-90, mspeed);
+    waitMotor();
+    forceBackMove();
+    waitMotor();
+    sortBones(speed, i);
+}
+
+void sortBones(int mspeed, int i){
+    rDrive(100,mspeed);
     waitMotor();
     if(currentBone == 0){       //! RED/Comunnis
         sack[0]++;
-        drive(1016.666666667, mspeed);  ////233
-        rotate(90, mspeed);
+        rDrive(900, mspeed);  ////233
+        waitMotor();
+        rotate(180, mspeed/2);
+        waitMotor();
+        forceBackMove();
+        waitMotor();
+        rDrive(100, mspeed);
+        waitMotor();
+        rotate(-90,mspeed/2);
+        waitMotor();
         paws(true);
-        drive(395, mspeed);
-        drive(-395, mspeed);
-        rotate(-90, mspeed);
+        waitMotor();
+        rDrive(375, mspeed);
+        waitMotor();
+        rDrive(-375, mspeed);
+        waitMotor();
+        paws(false);
+        waitMotor();
+        rotate(90, mspeed);
+        waitMotor();
+        forceBackMove();
+        waitMotor();
+        rDrive(900, mspeed);
+        waitMotor();
+        rotate(180, mspeed/2);
+        waitMotor();
         forceBackMove();
     }else if(currentBone == 1){ //^ Grün
         sack[1]++;
-        drive(550, mspeed);
-        rotate(90, mspeed);
+        rDrive(475, mspeed);
+        waitMotor();/*
+        rotate(180, mspeed/2);
+        waitMotor();
+        rotate(-90,mspeed/2);*/
+        rotate(90, mspeed/2);
+        waitMotor();
         paws(true);
-        drive(395, mspeed);
-        drive(-395, mspeed);
-        rotate(-90, mspeed);
+        waitMotor();
+        rDrive(375, mspeed);
+        waitMotor();
+        rDrive(-375, mspeed);
+        waitMotor();
+        rotate(-90, mspeed/2);
+        paws(false);
+        waitMotor();
         forceBackMove();
     }else if(currentBone == 2){ //? CAPITALISTIC PIG
         sack[2]++;
-        drive(83.333333, mspeed);
-        rotate(90, mspeed);
+        waitMotor();/*
+        rotate(180, mspeed/2);
+        waitMotor();
+        rotate(-90,mspeed/2);*/
+        rotate(90, mspeed/2);
+        waitMotor();
         paws(true);
-        drive(395, mspeed);
-        drive(-395, mspeed);
-        rotate(-90, mspeed);
+        waitMotor();
+        rDrive(375, mspeed);
+        waitMotor();
+        rDrive(-375, mspeed);
+        waitMotor();
+        rotate(-90, mspeed/2);
+        paws(false);
+        waitMotor();
         forceBackMove();
-    }else{                      //- Error forceback
+    }else{                      //- Error forceback & repeat
         forceBackMove();
+        collectBonesFailed(mspeed, i);
     }
 }
 
 void collectBones(int attemps, int mspeed){
     for(int i = 0; i < attemps; i++){
-        drive(100, mspeed);
+        rDrive(150, mspeed);
+        waitMotor();
         rotate(-90, mspeed);
         waitMotor();
-        drive(500-(500*i)/attemps, mspeed);
+        rDrive(500-(500*i)/attemps, mspeed);
+        waitMotor();
         rotate(90, mspeed);
         waitMotor();
         forceBackMove();
         paws(true);
-        drive(1105, mspeed);
+        waitMotor();
+
+        jDrive(mspeed);
         paws(false);
+
+        //for(int j=0; j<10; j++){
+        //    drive(100, mspeed);
+        //    if(currentBone != -1){
+        //        paws(false);
+        //        break;
+        //    }
+        //}
+
+        stopMotor();
+        waitMotor();
         forceBackMove();
-        drive(100, mspeed);
+        rDrive(175, mspeed);
+        waitMotor();
         rotate(90, mspeed);
         waitMotor();
-        drive(500-(500*i)/attemps, mspeed);
+        rDrive(500-(500*i)/attemps, mspeed);
+        waitMotor();
         rotate(-90, mspeed);
         waitMotor();
         forceBackMove();
-        sortBones(speed);
+        waitMotor();
+        sortBones(speed, i);
     }
     stopMotor();
 }
 
 //# Wake up! We need to BackUp
 void backToDen(int mspeed){
-    drive(100,mspeed);
-    rotate(-90,mspeed);
+    rDrive(150,mspeed);
     waitMotor();
-    drive(1450,mspeed);
+    rotate(-90,mspeed/2);
+    waitMotor();
+    rDrive(1450,mspeed);
+    waitMotor();
     moveUntil(500,mspeed);
     waitMotor();
-    rotate(90,mspeed);
+    rotate(90,mspeed/2);
     waitMotor();
     forceBackMove();
-    moveUntil(100,mspeed);
-    rotate(90,mspeed);
+    waitMotor();
+    rDrive(600,mspeed);
+    waitMotor();
+    rotate(90,mspeed/2);
+    waitMotor();
+    rDrive(500, mspeed);
+    waitMotor();
+    rotate(-90,mspeed/2);
+    waitMotor();
+    rDrive(350,mspeed);
+    waitMotor();
+    rotate(-90,mspeed/2);
     waitMotor();
     forceBackMove();
-    drive(800, mspeed);
-    rotate(-90,mspeed);
     waitMotor();
-    forceBackMove();
-    drive(500,mspeed);
-    rotate(-90,mspeed);
-    waitMotor();
-    forceBackMove();
-    moveUntil(100,mspeed);
-    /*
-    moveMotors(50);
-    waitMotor();
-    rotateMotors(45, 1);
-    waitMotor();
-    moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 0);
-    waitMotor();
-    forceBackMove();
-    moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 0);
-    waitMotor();
-    forceBackMove();
-    moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 1);
-    waitMotor();
-    forceBackMove();
-    moveUntil(200);
-    waitMotor();
-    rotateMotors(45, 1);
-    waitMotor();
-    forceBackMove();
-    moveUntil(100);*/
+    moveUntil(100,mspeed*2);
 }
 
 //# OKAAAAY, LET'S GO
-task main(){/*
-    forceBackMove();
-    mainSS(50);
-    goingToBones();
-    collectBones(attempt,45);
-    backToDen(50);
-    ////drive(150,50);
-    ////rotate(90, 50);
-    ////waitMotor();
-    /////!drive(-200,50);
-    /////*moveMotorsBack(200);*/
-    drive(-200,20);
+task main(){
+    resetMotorEncoder(motorPaws);
+
+    paws(false);
     waitMotor();
+    forceBackMove();
+    waitMotor();
+    mainSS(50);
+    waitMotor();
+    goingToBones();
+    waitMotor();
+    collectBones(attempt,30);
+    waitMotor();
+    backToDen(45);
+    waitMotor();
+    /*/
+    //!drive(200,60);
+    //!rotate(90, 60);
+    //!drive(-200,60);
+    //waitMotor();
+    paws(false); //# Closing paws(20,10);
+    waitMotor();
+    forceBackMove();
+    paws(true); //# OPENNING paws(-1,10);
+    waitMotor();/*/
+    sniffing = true;
+    startTask(gimmeColor);
     playTone(210, 8);
     delay(20);
     while(true){
