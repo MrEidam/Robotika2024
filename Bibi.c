@@ -114,7 +114,7 @@ void vDrive(int mspeed, bool collect){
         delay(20);
     }
 }
-/*
+
 //# Catching cubes sidewaaaayyysz
 void jDrive(int mspeed){
     resetEn();
@@ -130,7 +130,7 @@ void jDrive(int mspeed){
         }
         delay(20);
     }
-}*/
+}
 
 //# Forceback Drive
 void fDrive(int mspeed, int back){
@@ -241,7 +241,7 @@ int max(int a, int b, int c){       // vybere nejvyssi hodnotu
 }
 
 int getColor(int r, int g, int b){  //? returnuje barvu kostky
-	if(r>40||g>30||b>45){           //* zahájení američana.c
+	if(r>30||g>30||b>50){           //* zahájení američana.c
 		if(max(r,g,b)==r){          //! communist
 			return 0;
 		}else if(max(r,g,b)==g){    //^ detekce zelených zmrdů
@@ -285,25 +285,25 @@ void goingToBones(){
 void sortBones(int mspeed, int i, int j);
 
 void collectBonesFailed(int mspeed, int i, int j){
-    rDrive(150,mspeed);
-        waitMotor();
-        rDrive(1000-(1000*i)/attempt, mspeed);
-        waitMotor();
-        rotate(-90, mspeed);
-        paws(true);
+    /*rDrive(150,mspeed);
+    waitMotor();
+    rDrive(800-(800*i)/attempt, mspeed);
+    waitMotor();
+    rotate(-90, mspeed);
+    paws(true);
 
-        resetEn();
-        vDrive(mspeed, true);
+    resetEn();
+    vDrive(mspeed, true);
 
-        stopMotor();
-        waitMotor();
-        rotate(90, mspeed);
-        waitMotor();
-        forceBackMove();
-        waitMotor();
-        sortBones(speed, i,-1);
+    stopMotor();
+    waitMotor();
+    rotate(90, mspeed);
+    waitMotor();
+    forceBackMove();
+    waitMotor();
+    sortBones(speed, i,-1);
 
-    /*rDrive(150, mspeed);
+    /*/rDrive(150, mspeed);
     waitMotor();
     rotate(-90, mspeed);
     waitMotor();
@@ -330,7 +330,7 @@ void collectBonesFailed(int mspeed, int i, int j){
     rotate(-90, mspeed);
     waitMotor();
     forceBackMove();
-    waitMotor();*/
+    waitMotor();//*/
     sortBones(speed, i, j);
 }
 
@@ -351,9 +351,9 @@ void sortBones(int mspeed, int i, int j){
         waitMotor();
         paws(true);
         waitMotor();
-        rDrive(375, mspeed);
+        rDrive(400, mspeed);
         waitMotor();
-        rDrive(-375, mspeed);
+        rDrive(-400, mspeed);
         waitMotor();
         paws(false);
         waitMotor();
@@ -374,9 +374,9 @@ void sortBones(int mspeed, int i, int j){
         waitMotor();
         paws(true);
         waitMotor();
-        rDrive(375, mspeed);
+        rDrive(400, mspeed);
         waitMotor();
-        rDrive(-375, mspeed);
+        rDrive(-400, mspeed);
         waitMotor();
         rotate(-90, mspeed/2);
         paws(false);
@@ -389,9 +389,9 @@ void sortBones(int mspeed, int i, int j){
         waitMotor();
         paws(true);
         waitMotor();
-        rDrive(375, mspeed);
+        rDrive(400, mspeed);
         waitMotor();
-        rDrive(-375, mspeed);
+        rDrive(-400, mspeed);
         waitMotor();
         rotate(-90, mspeed/2);
         paws(false);
@@ -409,7 +409,7 @@ void sortBones(int mspeed, int i, int j){
 
 void collectBones(int attemps, int mspeed){
     for(int i = 0; i < attemps; i++){
-        rDrive(150,mspeed);
+        /*rDrive(150,mspeed);
         waitMotor();
         rDrive(1000-(1000*i)/attemps, mspeed);
         waitMotor();
@@ -427,7 +427,7 @@ void collectBones(int attemps, int mspeed){
         waitMotor();
         sortBones(speed, i,-1);
 
-        /*
+        /*/
         rDrive(150, mspeed);
         waitMotor();
         rotate(-90, mspeed);
@@ -457,7 +457,7 @@ void collectBones(int attemps, int mspeed){
         forceBackMove();
         waitMotor();
         sortBones(speed, i,-1);
-        */
+        //*/
     }
     stopMotor();
 }
